@@ -17,6 +17,7 @@
         "symfony/yaml": "7.3.*"
     },
     "require-dev": {
+        "symfony/maker-bundle": "^1.64"
     },
     "config": {
         "allow-plugins": {
