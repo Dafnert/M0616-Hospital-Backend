@@ -12,16 +12,17 @@ use Symfony\Component\HttpFoundation\Request;
 #[Route(path: '/nurse')]
 final class NurseController extends AbstractController
 {
+    #[Route(path: '/index', name: 'app_nurse_index')]
     public function getAll(): JsonResponse
     {
         $jsonPath = $this->getParameter('kernel.project_dir') . '/public/nurses.json';
-        $json_nurse = file_get_contents(filename: 'nurseS.json');
+        $json_nurse = file_get_contents(filename: 'nurses.json');
         $json_nurse = json_decode(json: $json_nurse, associative: true);
      
         return new JsonResponse(data: $json_nurse, status: Response::HTTP_OK);
     }  
     
-    #[Route(path: '/name/{name}', name: 'name_nurse')]
+    #[Route(path: '/name/{name}', name: 'app_nurse_findbyname')]
     public function findbyname(string $name): JsonResponse
     {
         // Ruta al JSON en /public
@@ -57,7 +58,7 @@ final class NurseController extends AbstractController
         ],Response::HTTP_OK);
 
     }
-    #[Route('/login', name: 'app_nurse', methods: ['POST'])]
+    #[Route('/login', name: 'app_nurse_login', methods: ['POST'])]
     public function login(Request $request): JsonResponse
     {
         // Obtener datos de la request (JSON enviado desde Postman)
@@ -76,7 +77,7 @@ final class NurseController extends AbstractController
                     'success' => false,
                     'message' => 'Username and password are required',
                 ],
-                Response::HTTP_BAD_REQUEST
+                Response::HTTP_UNAUTHORIZED
             );
         }
         // If the nurse exists, show all the nurse data.
@@ -101,7 +102,7 @@ final class NurseController extends AbstractController
                 'success' => false,
                 'message' => 'Invalid credentials',
             ],
-            Response::HTTP_UNAUTHORIZED
+            Response::HTTP_NOT_FOUND
         );
     }
 }
