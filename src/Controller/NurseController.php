@@ -45,7 +45,7 @@ final class NurseController extends AbstractController
                 'success' => false,
                 'message' => "Not Found {$name}",
                 'data' => []
-            ], 404);
+            ],Response::HTTP_NOT_FOUND);
         }
 
         // Devolver coincidencia(s)
@@ -53,7 +53,9 @@ final class NurseController extends AbstractController
             'success' => true,
             'name' => $name,
             'data' => $results
-        ]);
+   
+        ],Response::HTTP_OK);
+
     }
     #[Route('/login', name: 'app_nurse', methods: ['POST'])]
     public function login(Request $request): JsonResponse
