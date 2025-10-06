@@ -8,9 +8,44 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/nurse')]
+
+#[Route(path: '/nurse')]
 final class NurseController extends AbstractController
 {
+    #[Route(path: '/name/{name}', name: 'name_nurse')]
+    public function findbyname(string $name): JsonResponse
+    {
+        // Ruta al JSON en /public
+        $jsonPath = $this->getParameter('kernel.project_dir') . '/public/nurses.json';
+        $nurses = [];
+
+        if (file_exists($jsonPath)) {
+            $jsonContent = file_get_contents($jsonPath);
+            $nurses = json_decode($jsonContent, true);
+        }
+
+        // Filtrar solo coincidencias exactas
+        $results = array_filter($nurses, fn($nurse) => strcasecmp($nurse['name'], $name) === 0);
+
+        // Reindexar resultados
+        $results = array_values($results);
+
+        // Si no hay coincidencias
+        if (empty($results)) {
+            return $this->json([
+                'success' => false,
+                'message' => "Not Found {$name}",
+                'data' => []
+            ], 404);
+        }
+
+        // Devolver coincidencia(s)
+        return $this->json([
+            'success' => true,
+            'name' => $name,
+            'data' => $results
+        ]);
+    }
     #[Route('/login', name: 'app_nurse', methods: ['POST'])]
     public function login(Request $request): JsonResponse
     {
@@ -18,8 +53,8 @@ final class NurseController extends AbstractController
         $data = json_decode($request->getContent(), true);
         $nursesFile = $this->getParameter('kernel.project_dir') . '/public/nurses.json';
         $nursesData = json_decode(file_get_contents($nursesFile), true);
-        $nurses = $nursesData ?? []; 
-        
+        $nurses = $nursesData ?? [];
+
         $username = $data['username'] ?? '';
         $password = $data['password'] ?? '';
 
@@ -32,7 +67,7 @@ final class NurseController extends AbstractController
                 ],
                 Response::HTTP_BAD_REQUEST
             );
-        } 
+        }
         // If the nurse exists, show all the nurse data.
         foreach ($nurses as $nurse) {
             if ($nurse['username'] === $username && $nurse['password'] === $password) {
