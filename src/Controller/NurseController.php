@@ -4,14 +4,23 @@ namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Request;
 
 
 #[Route(path: '/nurse')]
 final class NurseController extends AbstractController
 {
+    public function getAll(): JsonResponse
+    {
+        $jsonPath = $this->getParameter('kernel.project_dir') . '/public/nurses.json';
+        $json_nurse = file_get_contents(filename: 'nurseS.json');
+        $json_nurse = json_decode(json: $json_nurse, associative: true);
+     
+        return new JsonResponse(data: $json_nurse, status: Response::HTTP_OK);
+    }  
+    
     #[Route(path: '/name/{name}', name: 'name_nurse')]
     public function findbyname(string $name): JsonResponse
     {
