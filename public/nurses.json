@@ -1,0 +1,30 @@
+[
+    {
+        "id": 1,
+        "username": "admin",
+        "password": "1234",
+        "name": "María González",
+        "email": "maria.gonzalez@hospital.com"
+    },
+    {
+        "id": 2,
+        "username": "juanita",
+        "password": "abcd",
+        "name": "Juanita Pérez",
+        "email": "juanita.perez@hospital.com"
+    },
+    {
+        "id": 3,
+        "username": "carmen",
+        "password": "nurse2025",
+        "name": "Carmen López",
+        "email": "carmen.lopez@hospital.com"
+    },
+    {
+        "id": 4,
+        "username": "sofia",
+        "password": "sofia123",
+        "name": "Sofía Ramírez",
+        "email": "sofia.ramirez@hospital.com"
+    }
+]

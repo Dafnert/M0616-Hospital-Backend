@@ -2,21 +2,33 @@
     {
         "id": 1,
         "name": "Ferran Bustos",
-        "department": "Cardiología"
+        "department": "Cardiología",
+        "user": "enfermero_mlopez",
+        "password": "M4r!aL0pz#21",
+        "email": "maria.lopez@example.com"
     },
     {
         "id": 2,
         "name": "Michelle Dafne",
-        "department": "Pediatría"
+        "department": "Pediatría",
+        "user": "enfermero_jgarcia",
+        "password": "JGarc!a_87x",
+        "email": "juan.garcia@example.com"
     },
     {
         "id": 3,
         "name": "Adri Vazquez",
-        "department": "Urgencias"
+        "department": "Urgencias",
+        "user": "enfermero_lfernandez",
+        "password": "Luc1aF#2025",
+        "email": "lucia.fernandez@example.com"
     },
     {
         "id": 4,
         "name": "Samhanta",
-        "department": "Traumatología"
+        "department": "Traumatología",
+        "user": "enfermero_cmartinez",
+        "password": "CMarTz*9pQ",
+        "email": "carlos.martinez@example.com"
     }
 ]
