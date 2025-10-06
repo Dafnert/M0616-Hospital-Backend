@@ -1,0 +1,22 @@
+[
+    {
+        "id": 1,
+        "name": "Ferran Bustos",
+        "department": "Cardiología"
+    },
+    {
+        "id": 2,
+        "name": "Michelle Dafne",
+        "department": "Pediatría"
+    },
+    {
+        "id": 3,
+        "name": "Adri Vazquez",
+        "department": "Urgencias"
+    },
+    {
+        "id": 4,
+        "name": "Samhanta",
+        "department": "Traumatología"
+    }
+]
