@@ -1,0 +1,37 @@
+[
+  {
+    "id": 1001,
+    "user": "enfermero_mlopez",
+    "nombre": "María López",
+    "password": "M4r!aL0pz#21",
+    "mail": "maria.lopez@example.com"
+  },
+  {
+    "id": 1002,
+    "user": "enfermero_jgarcia",
+    "nombre": "Juan García",
+    "password": "JGarc!a_87x",
+    "mail": "juan.garcia@example.com"
+  },
+  {
+    "id": 1003,
+    "user": "enfermero_lfernandez",
+    "nombre": "Lucía Fernández",
+    "password": "Luc1aF#2025",
+    "mail": "lucia.fernandez@example.com"
+  },
+  {
+    "id": 1004,
+    "user": "enfermero_cmartinez",
+    "nombre": "Carlos Martínez",
+    "password": "CMarTz*9pQ",
+    "mail": "carlos.martinez@example.com"
+  },
+  {
+    "id": 1005,
+    "user": "enfermero_aruiz",
+    "nombre": "Ana Ruiz",
+    "password": "An4Ru!z_303",
+    "mail": "ana.ruiz@example.com"
+  }
+]
