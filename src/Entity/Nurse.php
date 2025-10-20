@@ -35,6 +35,14 @@ class Nurse
     {
         return $this->id;
     }
+  
+    public function setId(int $id): static
+    {
+        $this->id = $id;
+
+        return $this;
+    }
+
 
     public function getName(): ?string
     {
@@ -92,6 +100,7 @@ class Nurse
     public function setUsername(string $username): static
     {
         $this->username = $username;
+
 
         return $this;
     }

@@ -15,7 +15,6 @@ class NurseRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Nurse::class);
     }
-
     //    /**
     //     * @return Nurse[] Returns an array of Nurse objects
     //     */
