@@ -26,7 +26,7 @@ class Nurse
     private ?string $speciality = null;
 
     #[ORM\Column(length: 50)]
-    private ?string $email = null;
+    private ?string $username = null;
 
     #[ORM\Column(length: 50)]
     private ?string $password = null;
@@ -35,13 +35,14 @@ class Nurse
     {
         return $this->id;
     }
-
+  
     public function setId(int $id): static
     {
         $this->id = $id;
 
         return $this;
     }
+
 
     public function getName(): ?string
     {
@@ -91,14 +92,15 @@ class Nurse
         return $this;
     }
 
-    public function getEmail(): ?string
+    public function getUsername(): ?string
     {
-        return $this->email;
+        return $this->username;
     }
 
-    public function setEmail(string $email): static
+    public function setUsername(string $username): static
     {
-        $this->email = $email;
+        $this->username = $username;
+
 
         return $this;
     }
