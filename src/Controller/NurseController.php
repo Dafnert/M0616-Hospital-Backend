@@ -19,10 +19,10 @@ final class NurseController extends AbstractController
         $jsonPath = $this->getParameter('kernel.project_dir') . '/public/nurses.json';
         $json_nurse = file_get_contents(filename: 'nurses.json');
         $json_nurse = json_decode(json: $json_nurse, associative: true);
-
+     
         return new JsonResponse(data: $json_nurse, status: Response::HTTP_OK);
-    }
-
+    }  
+    
     #[Route(path: '/name/{name}', name: 'app_nurse_findbyname')]
     public function findbyname(string $name): JsonResponse
     {
@@ -47,7 +47,7 @@ final class NurseController extends AbstractController
                 'success' => false,
                 'message' => "Not Found {$name}",
                 'data' => []
-            ], Response::HTTP_NOT_FOUND);
+            ],Response::HTTP_NOT_FOUND);
         }
 
         // Devolver coincidencia(s)
@@ -55,10 +55,12 @@ final class NurseController extends AbstractController
             'success' => true,
             'name' => $name,
             'data' => $results
+   
+        ],Response::HTTP_OK);
 
-        ], Response::HTTP_OK);
     }
     #[Route('/login', name: 'app_nurse_login', methods: ['POST'])]
+
     public function login(Request $request, NurseRepository $nurseRepository): JsonResponse
     {
         // Obtener datos de la request (JSON enviado desde Postman)
@@ -66,7 +68,7 @@ final class NurseController extends AbstractController
         // $nursesFile = $this->getParameter('kernel.project_dir') . '/public/nurses.json';
         // $nursesData = json_decode(file_get_contents($nursesFile), true);
         // $nurses = $nursesData ?? []; 
-
+        
         $username = $data['username'] ?? '';
         $password = $data['password'] ?? '';
 
@@ -79,7 +81,7 @@ final class NurseController extends AbstractController
                 ],
                 Response::HTTP_BAD_REQUEST
             );
-        }
+        } 
         //Busca en la base de datos el username
         // primero verificamos si el username exite o no
         $nurse = $nurseRepository->findOneBy(['username' => $username]);
@@ -109,4 +111,5 @@ final class NurseController extends AbstractController
             Response::HTTP_UNAUTHORIZED
         );
     }
+
 }
