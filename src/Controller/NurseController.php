@@ -7,6 +7,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
+use App\Repository\NurseRepository;
 
 
 #[Route(path: '/nurse')]
@@ -18,10 +19,10 @@ final class NurseController extends AbstractController
         $jsonPath = $this->getParameter('kernel.project_dir') . '/public/nurses.json';
         $json_nurse = file_get_contents(filename: 'nurses.json');
         $json_nurse = json_decode(json: $json_nurse, associative: true);
-     
+
         return new JsonResponse(data: $json_nurse, status: Response::HTTP_OK);
-    }  
-    
+    }
+
     #[Route(path: '/name/{name}', name: 'app_nurse_findbyname')]
     public function findbyname(string $name): JsonResponse
     {
@@ -46,7 +47,7 @@ final class NurseController extends AbstractController
                 'success' => false,
                 'message' => "Not Found {$name}",
                 'data' => []
-            ],Response::HTTP_NOT_FOUND);
+            ], Response::HTTP_NOT_FOUND);
         }
 
         // Devolver coincidencia(s)
@@ -54,18 +55,17 @@ final class NurseController extends AbstractController
             'success' => true,
             'name' => $name,
             'data' => $results
-   
-        ],Response::HTTP_OK);
 
+        ], Response::HTTP_OK);
     }
     #[Route('/login', name: 'app_nurse_login', methods: ['POST'])]
-    public function login(Request $request): JsonResponse
+    public function login(Request $request, NurseRepository $nurseRepository): JsonResponse
     {
         // Obtener datos de la request (JSON enviado desde Postman)
         $data = json_decode($request->getContent(), true);
-        $nursesFile = $this->getParameter('kernel.project_dir') . '/public/nurses.json';
-        $nursesData = json_decode(file_get_contents($nursesFile), true);
-        $nurses = $nursesData ?? [];
+        // $nursesFile = $this->getParameter('kernel.project_dir') . '/public/nurses.json';
+        // $nursesData = json_decode(file_get_contents($nursesFile), true);
+        // $nurses = $nursesData ?? []; 
 
         $username = $data['username'] ?? '';
         $password = $data['password'] ?? '';
@@ -77,24 +77,28 @@ final class NurseController extends AbstractController
                     'success' => false,
                     'message' => 'Username and password are required',
                 ],
-                Response::HTTP_UNAUTHORIZED
+                Response::HTTP_BAD_REQUEST
             );
         }
+        //Busca en la base de datos el username
+        // primero verificamos si el username exite o no
+        $nurse = $nurseRepository->findOneBy(['username' => $username]);
         // If the nurse exists, show all the nurse data.
-        foreach ($nurses as $nurse) {
-            if ($nurse['username'] === $username && $nurse['password'] === $password) {
-                return $this->json(
-                    [
-                        'success' => true,
-                        'message' => 'Success',
-                        'nurse' => [
-                            'name' => $nurse['name'],
-                            'email' => $nurse['email'],
-                        ]
-                    ],
-                    Response::HTTP_OK
-                );
-            }
+        if ($nurse && $nurse->getPassword() === $password) {
+            return $this->json(
+                [
+                    'success' => true,
+                    'message' => 'Success',
+                    'nurse' => [
+                        'id' => $nurse->getId(),
+                        'name' => $nurse->getName(),
+                        'surname' => $nurse->getSurname(),
+                        'username' => $nurse->getUsername(),
+                        'speciality' => $nurse->getSpeciality(),
+                    ]
+                ],
+                Response::HTTP_OK
+            );
         }
         // if the nurse not exixts, show a message
         return $this->json(
@@ -102,7 +106,7 @@ final class NurseController extends AbstractController
                 'success' => false,
                 'message' => 'Invalid credentials',
             ],
-            Response::HTTP_NOT_FOUND
+            Response::HTTP_UNAUTHORIZED
         );
     }
 }
