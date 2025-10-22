@@ -24,40 +24,36 @@ final class NurseController extends AbstractController
     }  
     
     #[Route(path: '/name/{name}', name: 'app_nurse_findbyname')]
-    public function findbyname(string $name): JsonResponse
+    public function findByName(string $name, NurseRepository $nurseRepository): JsonResponse
     {
-        // Ruta al JSON en /public
-        $jsonPath = $this->getParameter('kernel.project_dir') . '/public/nurses.json';
-        $nurses = [];
-
-        if (file_exists($jsonPath)) {
-            $jsonContent = file_get_contents($jsonPath);
-            $nurses = json_decode($jsonContent, true);
-        }
-
-        // Filtrar solo coincidencias exactas
-        $results = array_filter($nurses, fn($nurse) => strcasecmp($nurse['name'], $name) === 0);
-
-        // Reindexar resultados
-        $results = array_values($results);
-
-        // Si no hay coincidencias
+        $results = $nurseRepository->createQueryBuilder('n')
+            ->where('LOWER(n.name) = LOWER(:name)')
+            ->setParameter('name', $name)
+            ->getQuery()
+            ->getResult();
         if (empty($results)) {
             return $this->json([
                 'success' => false,
-                'message' => "Not Found {$name}",
+                'message' => "No se encontró ningún enfermero con el nombre '{$name}'",
                 'data' => []
-            ],Response::HTTP_NOT_FOUND);
+            ], Response::HTTP_NOT_FOUND);
         }
+        $data = array_map(function ($nurse) {
+            return [
+                'id' => $nurse->getId(),
+                'name' => $nurse->getName(),
+                'surname' => $nurse->getSurname(),
+                'age' => $nurse->getAge(),
+                'speciality' => $nurse->getSpeciality(),
+                'username' => $nurse->getUsername(),
+                'password' => $nurse->getPassword(),
+            ];
+        }, $results);
 
-        // Devolver coincidencia(s)
         return $this->json([
             'success' => true,
-            'name' => $name,
-            'data' => $results
-   
-        ],Response::HTTP_OK);
-
+            'data' => $data
+        ], Response::HTTP_OK);
     }
     #[Route('/login', name: 'app_nurse_login', methods: ['POST'])]
 
