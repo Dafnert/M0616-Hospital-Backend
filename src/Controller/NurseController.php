@@ -24,16 +24,14 @@ final class NurseController extends AbstractController
     }  
     
     #[Route(path: '/name/{name}', name: 'app_nurse_findbyname')]
-      public function findByName(string $name, NurseRepository $nurseRepository): JsonResponse
+    public function findByName(string $name, NurseRepository $nurseRepository): JsonResponse
     {
-        // Buscar coincidencias ignorando mayúsculas/minúsculas
         $results = $nurseRepository->createQueryBuilder('n')
-            ->where('LOWER(n.nombre) = LOWER(:name)')
+            ->where('LOWER(n.name) = LOWER(:name)')
             ->setParameter('name', $name)
             ->getQuery()
             ->getResult();
 
-        // Si no hay coincidencias
         if (empty($results)) {
             return $this->json([
                 'success' => false,
@@ -41,19 +39,17 @@ final class NurseController extends AbstractController
                 'data' => []
             ], Response::HTTP_NOT_FOUND);
         }
-
-        // Convertir entidades a arrays
-        $data = array_map(function($nurse) {
+        $data = array_map(function ($nurse) {
             return [
                 'id' => $nurse->getId(),
-                'nombre' => $nurse->getNombre(),
-                'apellido' => $nurse->getApellido(),
-                'especialidad' => $nurse->getEspecialidad(),
-                'usuario' => $nurse->getUsuario(),
-                'contraseña' => $nurse->getContraseña(),
+                'name' => $nurse->getName(),
+                'surname' => $nurse->getSurname(),
+                'age' => $nurse->getAge(),
+                'speciality' => $nurse->getSpeciality(),
+                'username' => $nurse->getUsername(),
+                'password' => $nurse->getPassword(),
             ];
         }, $results);
-
         return $this->json([
             'success' => true,
             'data' => $data
