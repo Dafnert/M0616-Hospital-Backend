@@ -31,6 +31,7 @@ final class NurseController extends AbstractController
             ->setParameter('name', $name)
             ->getQuery()
             ->getResult();
+
         if (empty($results)) {
             return $this->json([
                 'success' => false,
@@ -49,12 +50,14 @@ final class NurseController extends AbstractController
                 'password' => $nurse->getPassword(),
             ];
         }, $results);
-
         return $this->json([
             'success' => true,
             'data' => $data
         ], Response::HTTP_OK);
     }
+
+
+
     #[Route('/login', name: 'app_nurse_login', methods: ['POST'])]
 
     public function login(Request $request, NurseRepository $nurseRepository): JsonResponse
