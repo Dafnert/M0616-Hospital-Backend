@@ -7,20 +7,39 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
+use App\Repository\NurseRepository;
 
 
 #[Route(path: '/nurse')]
 final class NurseController extends AbstractController
 {
     #[Route(path: '/index', name: 'app_nurse_index')]
-    public function getAll(): JsonResponse
+
+    public function getAll(NurseRepository $nurseRepository): JsonResponse
     {
-        $jsonPath = $this->getParameter('kernel.project_dir') . '/public/nurses.json';
-        $json_nurse = file_get_contents(filename: 'nurses.json');
-        $json_nurse = json_decode(json: $json_nurse, associative: true);
-     
-        return new JsonResponse(data: $json_nurse, status: Response::HTTP_OK);
-    }  
+        // Obtener todas las enfermeras desde la base de datos
+        $nurses = $nurseRepository->findAll();
+
+        // Verifica si no hay enfermeras en la base de datos
+        if (!$nurses) {
+            return new JsonResponse(['error' => 'No nurses found'], Response::HTTP_NOT_FOUND);
+        }
+
+        $data = array_map(function ($nurse) {
+            return [
+                 'id' => $nurse->getId(),
+                'name' => $nurse->getName(),
+                'surname' => $nurse->getSurname(),
+                'age' => $nurse->getAge(),
+                'speciality' => $nurse->getSpeciality(),
+                'username' => $nurse->getUsername(),
+                'password' => $nurse->getPassword(),
+            ];
+        }, $nurses);
+
+        return new JsonResponse($data, Response::HTTP_OK);
+    }
+
     
     #[Route(path: '/name/{name}', name: 'app_nurse_findbyname')]
     public function findbyname(string $name): JsonResponse
