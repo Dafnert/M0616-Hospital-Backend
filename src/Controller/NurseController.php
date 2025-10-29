@@ -81,11 +81,8 @@ final class NurseController extends AbstractController
 
     public function login(Request $request, NurseRepository $nurseRepository): JsonResponse
     {
-        // Obtener datos de la request (JSON enviado desde Postman)
+        // Obtain data request
         $data = json_decode($request->getContent(), true);
-        // $nursesFile = $this->getParameter('kernel.project_dir') . '/public/nurses.json';
-        // $nursesData = json_decode(file_get_contents($nursesFile), true);
-        // $nurses = $nursesData ?? []; 
 
         $username = $data['username'] ?? '';
         $password = $data['password'] ?? '';
@@ -129,6 +126,31 @@ final class NurseController extends AbstractController
             Response::HTTP_NOT_FOUND
         );
     }
+
+    #[Route('/{id}', name: 'app_nurse_delete', methods: ['DELETE'])]
+    public function deleteById(int $id, NurseRepository $nurseRepository): JsonResponse
+    {
+        // Buscar el enfermero por ID
+        $nurse = $nurseRepository->find($id);
+
+        // Verificar si existe
+        if (!$nurse) {
+            return $this->json([
+                'success' => false,
+                'message' => "No nurse was found with the ID'{$id}'"
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        // Eliminar el enfermero
+        $entityManager = $nurseRepository->getEntityManager();
+        $entityManager->remove($nurse);
+        $entityManager->flush();
+
+        return $this->json([
+            'success' => true,
+            'message' => "Nurse '{$nurse->getName()}'Deleted successfully"
+        ], Response::HTTP_OK);
+    }
     #[Route('/{id}', name: 'nurse_searchById')]
     public function readById(int $id,  NurseRepository $nurseRepository): JsonResponse
     {
@@ -148,7 +170,7 @@ final class NurseController extends AbstractController
                         'speciality' => $nurse->getSpeciality(),
                     ]
                 ],
-                Response::HTTP_OK 
+                Response::HTTP_OK
             );
         }
         return $this->json(
@@ -158,6 +180,5 @@ final class NurseController extends AbstractController
             ],
             Response::HTTP_NOT_FOUND
         );
- }
-
+    }
 }
