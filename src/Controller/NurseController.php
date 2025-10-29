@@ -57,6 +57,7 @@ final class NurseController extends AbstractController
                 'data' => []
             ], Response::HTTP_NOT_FOUND);
         }
+
         $data = array_map(function ($nurse) {
             return [
                 'id' => $nurse->getId(),
@@ -157,5 +158,6 @@ final class NurseController extends AbstractController
             ],
             Response::HTTP_NOT_FOUND
         );
-    }
+ }
+
 }
