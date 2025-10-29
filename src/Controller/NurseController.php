@@ -27,7 +27,7 @@ final class NurseController extends AbstractController
 
         $data = array_map(function ($nurse) {
             return [
-                 'id' => $nurse->getId(),
+                'id' => $nurse->getId(),
                 'name' => $nurse->getName(),
                 'surname' => $nurse->getSurname(),
                 'age' => $nurse->getAge(),
@@ -40,7 +40,7 @@ final class NurseController extends AbstractController
         return new JsonResponse($data, Response::HTTP_OK);
     }
 
-    
+
     #[Route(path: '/name/{name}', name: 'app_nurse_findbyname')]
     public function findByName(string $name, NurseRepository $nurseRepository): JsonResponse
     {
@@ -85,7 +85,7 @@ final class NurseController extends AbstractController
         // $nursesFile = $this->getParameter('kernel.project_dir') . '/public/nurses.json';
         // $nursesData = json_decode(file_get_contents($nursesFile), true);
         // $nurses = $nursesData ?? []; 
-        
+
         $username = $data['username'] ?? '';
         $password = $data['password'] ?? '';
 
@@ -96,9 +96,9 @@ final class NurseController extends AbstractController
                     'success' => false,
                     'message' => 'Username and password are required',
                 ],
-                Response::HTTP_BAD_REQUEST
+                Response::HTTP_UNAUTHORIZED
             );
-        } 
+        }
         //Busca en la base de datos el username
         // primero verificamos si el username exite o no
         $nurse = $nurseRepository->findOneBy(['username' => $username]);
@@ -125,8 +125,37 @@ final class NurseController extends AbstractController
                 'success' => false,
                 'message' => 'Invalid credentials',
             ],
-            Response::HTTP_UNAUTHORIZED
+            Response::HTTP_NOT_FOUND
         );
     }
-
+    #[Route('/{id}', name: 'nurse_searchById')]
+    public function readById(int $id,  NurseRepository $nurseRepository): JsonResponse
+    {
+        //Search nurse by ID
+        $nurse = $nurseRepository->find($id);
+        //If the nurse exist, show us data
+        if ($nurse) {
+            return $this->json(
+                [
+                    'success' => true,
+                    'message' => 'Nurse found',
+                    'nurse' => [
+                        'id' => $nurse->getId(),
+                        'name' => $nurse->getName(),
+                        'surname' => $nurse->getSurname(),
+                        'username' => $nurse->getUsername(),
+                        'speciality' => $nurse->getSpeciality(),
+                    ]
+                ],
+                Response::HTTP_OK 
+            );
+        }
+        return $this->json(
+            [
+                'success' => false,
+                'message' => 'Nurse not found',
+            ],
+            Response::HTTP_NOT_FOUND
+        );
+    }
 }
