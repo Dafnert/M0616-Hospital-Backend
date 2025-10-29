@@ -27,7 +27,7 @@ final class NurseController extends AbstractController
 
         $data = array_map(function ($nurse) {
             return [
-                 'id' => $nurse->getId(),
+                'id' => $nurse->getId(),
                 'name' => $nurse->getName(),
                 'surname' => $nurse->getSurname(),
                 'age' => $nurse->getAge(),
@@ -40,7 +40,7 @@ final class NurseController extends AbstractController
         return new JsonResponse($data, Response::HTTP_OK);
     }
 
-    
+
     #[Route(path: '/name/{name}', name: 'app_nurse_findbyname')]
     public function findByName(string $name, NurseRepository $nurseRepository): JsonResponse
     {
@@ -53,7 +53,7 @@ final class NurseController extends AbstractController
         if (empty($results)) {
             return $this->json([
                 'success' => false,
-                'message' => "No se encontró ningún enfermero con el nombre '{$name}'",
+                'message' => "No nurse found with the given name '{$name}'",
                 'data' => []
             ], Response::HTTP_NOT_FOUND);
         }
@@ -86,7 +86,7 @@ final class NurseController extends AbstractController
         // $nursesFile = $this->getParameter('kernel.project_dir') . '/public/nurses.json';
         // $nursesData = json_decode(file_get_contents($nursesFile), true);
         // $nurses = $nursesData ?? []; 
-        
+
         $username = $data['username'] ?? '';
         $password = $data['password'] ?? '';
 
@@ -97,9 +97,9 @@ final class NurseController extends AbstractController
                     'success' => false,
                     'message' => 'Username and password are required',
                 ],
-                Response::HTTP_BAD_REQUEST
+                Response::HTTP_UNAUTHORIZED
             );
-        } 
+        }
         //Busca en la base de datos el username
         // primero verificamos si el username exite o no
         $nurse = $nurseRepository->findOneBy(['username' => $username]);
@@ -126,77 +126,38 @@ final class NurseController extends AbstractController
                 'success' => false,
                 'message' => 'Invalid credentials',
             ],
-            Response::HTTP_UNAUTHORIZED
+            Response::HTTP_NOT_FOUND
+        );
+    }
+    #[Route('/{id}', name: 'nurse_searchById')]
+    public function readById(int $id,  NurseRepository $nurseRepository): JsonResponse
+    {
+        //Search nurse by ID
+        $nurse = $nurseRepository->find($id);
+        //If the nurse exist, show us data
+        if ($nurse) {
+            return $this->json(
+                [
+                    'success' => true,
+                    'message' => 'Nurse found',
+                    'nurse' => [
+                        'id' => $nurse->getId(),
+                        'name' => $nurse->getName(),
+                        'surname' => $nurse->getSurname(),
+                        'username' => $nurse->getUsername(),
+                        'speciality' => $nurse->getSpeciality(),
+                    ]
+                ],
+                Response::HTTP_OK 
+            );
+        }
+        return $this->json(
+            [
+                'success' => false,
+                'message' => 'Nurse not found',
+            ],
+            Response::HTTP_NOT_FOUND
         );
  }
-
-#[Route(path: '/{id}', name: 'app_nurse_update', methods: ['PUT'])]
-
-public function updateNurse(
-    int $id,
-    Request $request,
-    NurseRepository $nurseRepository,
-    \Doctrine\ORM\EntityManagerInterface $entityManager
-): JsonResponse {
-    // Buscar enfermera por ID
-    $nurse = $nurseRepository->find($id);
-
-    if (!$nurse) {
-        return $this->json([
-            'success' => false,
-            'message' => "No nurse with the ID was found. {$id}"
-        ], Response::HTTP_NOT_FOUND);
-    }
-
-    // Obtener datos del cuerpo de la solicitud
-    $data = json_decode($request->getContent(), true);
-
-    // Validar que se haya enviado algún campo para actualizar
-    if (!$data || !is_array($data)) {
-        return $this->json([
-            'success' => false,
-            'message' => 'No valid data was sent to update.'
-        ], Response::HTTP_BAD_REQUEST);
-    }
-
-    // Actualizar solo los campos enviados (manejo parcial)
-    if (isset($data['name'])) {
-        $nurse->setName($data['name']);
-    }
-    if (isset($data['surname'])) {
-        $nurse->setSurname($data['surname']);
-    }
-    if (isset($data['age'])) {
-        $nurse->setAge($data['age']);
-    }
-    if (isset($data['speciality'])) {
-        $nurse->setSpeciality($data['speciality']);
-    }
-    if (isset($data['username'])) {
-        $nurse->setUsername($data['username']);
-    }
-    if (isset($data['password'])) {
-        $nurse->setPassword($data['password']);
-    }
-
-    // Guardar cambios en la base de datos
-    $entityManager->persist($nurse);
-    $entityManager->flush();
-
-    return $this->json([
-        'success' => true,
-        'message' => 'Nurse correctly updated.',
-        'data' => [
-            'id' => $nurse->getId(),
-            'name' => $nurse->getName(),
-            'surname' => $nurse->getSurname(),
-            'age' => $nurse->getAge(),
-            'speciality' => $nurse->getSpeciality(),
-            'username' => $nurse->getUsername(),
-            'password' => $nurse->getPassword(),
-        ]
-    ], Response::HTTP_OK);
-}
-
 
 }

@@ -15,6 +15,17 @@ class NurseRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Nurse::class);
     }
+
+        public function save(\App\Entity\Nurse $entity, bool $flush = false): void
+    {
+        $em = $this->getEntityManager();  
+        $em->persist($entity);
+
+        if ($flush) {
+            $em->flush();
+        }
+    }
+
     //    /**
     //     * @return Nurse[] Returns an array of Nurse objects
     //     */
