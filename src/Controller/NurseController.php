@@ -57,6 +57,7 @@ final class NurseController extends AbstractController
                 'data' => []
             ], Response::HTTP_NOT_FOUND);
         }
+
         $data = array_map(function ($nurse) {
             return [
                 'id' => $nurse->getId(),
@@ -127,6 +128,75 @@ final class NurseController extends AbstractController
             ],
             Response::HTTP_UNAUTHORIZED
         );
+ }
+
+#[Route(path: '/{id}', name: 'app_nurse_update', methods: ['PUT'])]
+
+public function updateNurse(
+    int $id,
+    Request $request,
+    NurseRepository $nurseRepository,
+    \Doctrine\ORM\EntityManagerInterface $entityManager
+): JsonResponse {
+    // Buscar enfermera por ID
+    $nurse = $nurseRepository->find($id);
+
+    if (!$nurse) {
+        return $this->json([
+            'success' => false,
+            'message' => "No nurse with the ID was found. {$id}"
+        ], Response::HTTP_NOT_FOUND);
     }
+
+    // Obtener datos del cuerpo de la solicitud
+    $data = json_decode($request->getContent(), true);
+
+    // Validar que se haya enviado algún campo para actualizar
+    if (!$data || !is_array($data)) {
+        return $this->json([
+            'success' => false,
+            'message' => 'No valid data was sent to update.'
+        ], Response::HTTP_BAD_REQUEST);
+    }
+
+    // Actualizar solo los campos enviados (manejo parcial)
+    if (isset($data['name'])) {
+        $nurse->setName($data['name']);
+    }
+    if (isset($data['surname'])) {
+        $nurse->setSurname($data['surname']);
+    }
+    if (isset($data['age'])) {
+        $nurse->setAge($data['age']);
+    }
+    if (isset($data['speciality'])) {
+        $nurse->setSpeciality($data['speciality']);
+    }
+    if (isset($data['username'])) {
+        $nurse->setUsername($data['username']);
+    }
+    if (isset($data['password'])) {
+        $nurse->setPassword($data['password']);
+    }
+
+    // Guardar cambios en la base de datos
+    $entityManager->persist($nurse);
+    $entityManager->flush();
+
+    return $this->json([
+        'success' => true,
+        'message' => 'Nurse correctly updated.',
+        'data' => [
+            'id' => $nurse->getId(),
+            'name' => $nurse->getName(),
+            'surname' => $nurse->getSurname(),
+            'age' => $nurse->getAge(),
+            'speciality' => $nurse->getSpeciality(),
+            'username' => $nurse->getUsername(),
+            'password' => $nurse->getPassword(),
+        ]
+    ], Response::HTTP_OK);
+}
+
 
 }
