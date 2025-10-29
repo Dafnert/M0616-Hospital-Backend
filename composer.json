@@ -16,8 +16,11 @@
         "symfony/console": "7.3.*",
         "symfony/dotenv": "7.3.*",
         "symfony/flex": "^2",
+        "symfony/form": "7.3.*",
         "symfony/framework-bundle": "7.3.*",
         "symfony/runtime": "7.3.*",
+        "symfony/security-csrf": "7.3.*",
+        "symfony/validator": "7.3.*",
         "symfony/yaml": "7.3.*"
     },
     "require-dev": {
