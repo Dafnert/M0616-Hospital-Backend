@@ -53,7 +53,7 @@ final class NurseController extends AbstractController
         if (empty($results)) {
             return $this->json([
                 'success' => false,
-                'message' => "No se encontró ningún enfermero con el nombre '{$name}'",
+                'message' => "No nurse found with the given name '{$name}'",
                 'data' => []
             ], Response::HTTP_NOT_FOUND);
         }
