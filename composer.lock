@@ -1056,9 +1056,7 @@
             ],
             "support": {
                 "issues": "https://github.com/doctrine/persistence/issues",
-
                 "source": "https://github.com/doctrine/persistence/tree/4.1.1"
-
             },
             "funding": [
                 {
@@ -1075,7 +1073,6 @@
                 }
             ],
             "time": "2025-10-16T20:13:18+00:00"
-
         },
         {
             "name": "doctrine/sql-formatter",
@@ -4121,7 +4118,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
@@ -4129,6 +4126,6 @@
         "ext-ctype": "*",
         "ext-iconv": "*"
     },
-    "platform-dev": [],
+    "platform-dev": {},
     "plugin-api-version": "2.6.0"
 }

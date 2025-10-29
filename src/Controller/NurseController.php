@@ -53,7 +53,7 @@ final class NurseController extends AbstractController
         if (empty($results)) {
             return $this->json([
                 'success' => false,
-                'message' => "No se encontró ningún enfermero con el nombre '{$name}'",
+                'message' => "No nurse found with the given name '{$name}'",
                 'data' => []
             ], Response::HTTP_NOT_FOUND);
         }
@@ -126,6 +126,73 @@ final class NurseController extends AbstractController
                 'message' => 'Invalid credentials',
             ],
             Response::HTTP_UNAUTHORIZED
+        );
+    }
+
+
+
+    #CREACION DEL CRUD
+    #[Route('/new', name: 'app_nurse_create', methods: ['POST'])]
+
+    public function createNurse(Request $request, NurseRepository $nurseRepository): JsonResponse
+    {
+        // Obtener datos enviados en formato JSON
+        $data = json_decode($request->getContent(), true);
+
+        // Validar que los campos requeridos estén presentes
+        $requiredFields = ['name', 'surname', 'age', 'speciality', 'username', 'password'];
+        foreach ($requiredFields as $field) {
+            if (empty($data[$field])) {
+                return $this->json(
+                    [
+                        'success' => false,
+                        'message' => "This is '{$field}' is required"
+                    ],
+                    Response::HTTP_BAD_REQUEST
+                );
+            }
+        }
+
+        // Verificar si ya existe un usuario con ese username
+        $existingNurse = $nurseRepository->findOneBy(['username' => $data['username']]);
+        if ($existingNurse) {
+            return $this->json(
+                [
+                    'success' => false,
+                    'message' => 'The username is already in use.'
+                ],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+
+        // Crear nuevo objeto Nurse (asumiendo que existe la entidad App\Entity\Nurse)
+        $nurse = new \App\Entity\Nurse();
+        $nurse->setName($data['name']);
+        $nurse->setSurname($data['surname']);
+        $nurse->setAge($data['age']);
+        $nurse->setSpeciality($data['speciality']);
+        $nurse->setUsername($data['username']);
+        $nurse->setPassword($data['password']);
+
+        // Guardar en base de datos 
+        //llamamos al metodo save() que esta en el repopositorNurse
+        $nurseRepository->save($nurse, true); // El segundo parámetro true hace el flush
+
+        //Aqui se devuelve la respuesta 
+        return $this->json(
+            [
+                'success' => true,
+                'message' => 'Nurse created successfully.',
+                'data' => [
+                    'id' => $nurse->getId(),
+                    'name' => $nurse->getName(),
+                    'surname' => $nurse->getSurname(),
+                    'age' => $nurse->getAge(),
+                    'speciality' => $nurse->getSpeciality(),
+                    'username' => $nurse->getUsername()
+                ]
+            ],
+            Response::HTTP_CREATED // 201 OK
         );
     }
 
