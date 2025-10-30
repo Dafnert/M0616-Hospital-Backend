@@ -8,6 +8,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\NurseRepository;
+use App\Entity\Nurse;
 
 
 #[Route(path: '/nurse')]
@@ -127,6 +128,49 @@ final class NurseController extends AbstractController
         );
     }
 
+  #[Route('/', name: 'app_nurse_create', methods: ['POST'])]
+    public function createNurse(Request $request, NurseRepository $nurseRepository): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+ 
+        if (
+            !isset($data['name']) ||
+            !isset($data['surname']) ||
+            !isset($data['age']) ||
+            !isset($data['speciality']) ||
+            !isset($data['username']) ||
+            !isset($data['password'])
+        ) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Missing required fields'
+            ], Response::HTTP_BAD_REQUEST);
+        }
+ 
+        $nurse = new Nurse();
+        $nurse->setName($data['name']);
+        $nurse->setSurname($data['surname']);
+        $nurse->setAge($data['age']);
+        $nurse->setSpeciality($data['speciality']);
+        $nurse->setUsername($data['username']);
+        $nurse->setPassword($data['password']);
+ 
+        $nurseRepository->save($nurse, true);
+ 
+        return $this->json([
+            'success' => true,
+            'message' => "Nurse '{$nurse->getName()}' created successfully",
+            'data' => [
+                'id' => $nurse->getId(),
+                'name' => $nurse->getName(),
+                'surname' => $nurse->getSurname(),
+                'age' => $nurse->getAge(),
+                'speciality' => $nurse->getSpeciality(),
+                'username' => $nurse->getUsername(),
+            ]
+        ], Response::HTTP_CREATED);
+    }
+ 
     #[Route('/{id}', name: 'app_nurse_delete', methods: ['DELETE'])]
     public function deleteById(int $id, NurseRepository $nurseRepository): JsonResponse
     {
