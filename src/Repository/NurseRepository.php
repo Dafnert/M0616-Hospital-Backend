@@ -6,9 +6,6 @@ use App\Entity\Nurse;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-/**
- * @extends ServiceEntityRepository<Nurse>
- */
 class NurseRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -16,15 +13,14 @@ class NurseRepository extends ServiceEntityRepository
         parent::__construct($registry, Nurse::class);
     }
 
-        public function save(\App\Entity\Nurse $entity, bool $flush = false): void
+    public function save(Nurse $nurse, bool $flush = false): void
     {
-        $em = $this->getEntityManager();  
-        $em->persist($entity);
-
+        $this->getEntityManager()->persist($nurse);
         if ($flush) {
-            $em->flush();
+            $this->getEntityManager()->flush();
         }
     }
+
 
     //    /**
     //     * @return Nurse[] Returns an array of Nurse objects
