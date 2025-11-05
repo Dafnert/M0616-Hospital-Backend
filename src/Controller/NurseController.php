@@ -8,6 +8,8 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\NurseRepository;
+use Doctrine\ORM\EntityManagerInterface;
+
 
 
 #[Route(path: '/nurse')]
@@ -27,7 +29,7 @@ final class NurseController extends AbstractController
 
         $data = array_map(function ($nurse) {
             return [
-                 'id' => $nurse->getId(),
+                'id' => $nurse->getId(),
                 'name' => $nurse->getName(),
                 'surname' => $nurse->getSurname(),
                 'age' => $nurse->getAge(),
@@ -40,7 +42,7 @@ final class NurseController extends AbstractController
         return new JsonResponse($data, Response::HTTP_OK);
     }
 
-    
+
     #[Route(path: '/name/{name}', name: 'app_nurse_findbyname')]
     public function findByName(string $name, NurseRepository $nurseRepository): JsonResponse
     {
@@ -86,7 +88,7 @@ final class NurseController extends AbstractController
         // $nursesFile = $this->getParameter('kernel.project_dir') . '/public/nurses.json';
         // $nursesData = json_decode(file_get_contents($nursesFile), true);
         // $nurses = $nursesData ?? []; 
-        
+
         $username = $data['username'] ?? '';
         $password = $data['password'] ?? '';
 
@@ -99,7 +101,7 @@ final class NurseController extends AbstractController
                 ],
                 Response::HTTP_BAD_REQUEST
             );
-        } 
+        }
         //Busca en la base de datos el username
         // primero verificamos si el username exite o no
         $nurse = $nurseRepository->findOneBy(['username' => $username]);
@@ -128,75 +130,64 @@ final class NurseController extends AbstractController
             ],
             Response::HTTP_UNAUTHORIZED
         );
- }
-
-#[Route(path: '/{id}', name: 'app_nurse_update', methods: ['PUT'])]
-
-public function updateNurse(
-    int $id,
-    Request $request,
-    NurseRepository $nurseRepository,
-    \Doctrine\ORM\EntityManagerInterface $entityManager
-): JsonResponse {
-    // Buscar enfermera por ID
-    $nurse = $nurseRepository->find($id);
-
-    if (!$nurse) {
-        return $this->json([
-            'success' => false,
-            'message' => "No nurse with the ID was found. {$id}"
-        ], Response::HTTP_NOT_FOUND);
     }
 
-    // Obtener datos del cuerpo de la solicitud
-    $data = json_decode($request->getContent(), true);
-
-    // Validar que se haya enviado algún campo para actualizar
-    if (!$data || !is_array($data)) {
-        return $this->json([
-            'success' => false,
-            'message' => 'No valid data was sent to update.'
-        ], Response::HTTP_BAD_REQUEST);
-    }
-
-    // Actualizar solo los campos enviados (manejo parcial)
-    if (isset($data['name'])) {
-        $nurse->setName($data['name']);
-    }
-    if (isset($data['surname'])) {
-        $nurse->setSurname($data['surname']);
-    }
-    if (isset($data['age'])) {
-        $nurse->setAge($data['age']);
-    }
-    if (isset($data['speciality'])) {
-        $nurse->setSpeciality($data['speciality']);
-    }
-    if (isset($data['username'])) {
-        $nurse->setUsername($data['username']);
-    }
-    if (isset($data['password'])) {
-        $nurse->setPassword($data['password']);
-    }
-
-    // Guardar cambios en la base de datos
-    $entityManager->persist($nurse);
-    $entityManager->flush();
-
-    return $this->json([
-        'success' => true,
-        'message' => 'Nurse correctly updated.',
-        'data' => [
-            'id' => $nurse->getId(),
-            'name' => $nurse->getName(),
-            'surname' => $nurse->getSurname(),
-            'age' => $nurse->getAge(),
-            'speciality' => $nurse->getSpeciality(),
-            'username' => $nurse->getUsername(),
-            'password' => $nurse->getPassword(),
-        ]
-    ], Response::HTTP_OK);
-}
+    #[Route(path: '/{id}', name: 'app_nurse_update', methods: ['PUT'])]
 
 
+
+    #[Route('/{id}', name: 'api_update_auxiliar', methods: ['PUT'])]
+    public function updateNurse(
+        int $id,
+        Request $request,
+        NurseRepository $nurseRepository,
+        EntityManagerInterface $entityManager,
+    ): JsonResponse {
+
+        // Buscar la enfermera por ID
+        $nurse = $nurseRepository->find($id);
+
+        if (!$nurse) {
+            return new JsonResponse(['error' => 'Nurse not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        // Decodificar los datos JSON del cuerpo de la petición
+        $data = json_decode($request->getContent(), true);
+
+        // Actualizar los campos si se proporcionan
+        if (isset($data['name'])) {
+            $nurse->setName($data['name']);
+        }
+        if (isset($data['surname'])) {
+            $nurse->setSurname($data['surname']);
+        }
+        if (isset($data['age'])) {
+            $nurse->setAge($data['age']);
+        }
+        if (isset($data['speciality'])) {
+            $nurse->setSpeciality($data['speciality']);
+        }
+        if (isset($data['username'])) {
+            $nurse->setUsername($data['username']);
+        }
+        if (!empty($data['password'])) {
+            $nurse->setPassword($data['password']);
+        }
+
+        // Save the changes
+        $entityManager->flush();
+
+        return new JsonResponse([
+            'success' => true,
+            'message' => 'Nurse updated successfully',
+            'nurse' => [
+                'id' => $nurse->getId(),
+                'name' => $nurse->getName(),
+                'surname' => $nurse->getSurname(),
+                'age' => $nurse->getAge(),
+                'speciality' => $nurse->getSpeciality(),
+                'username' => $nurse->getUsername(),
+            ]
+        ], Response::HTTP_OK);
+    }
 }
