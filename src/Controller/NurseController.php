@@ -8,6 +8,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\NurseRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Nurse;
 
 
@@ -128,11 +129,11 @@ final class NurseController extends AbstractController
         );
     }
 
-  #[Route('/', name: 'app_nurse_create', methods: ['POST'])]
+    #[Route('/', name: 'app_nurse_create', methods: ['POST'])]
     public function createNurse(Request $request, NurseRepository $nurseRepository): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
- 
+
         if (
             !isset($data['name']) ||
             !isset($data['surname']) ||
@@ -146,7 +147,7 @@ final class NurseController extends AbstractController
                 'message' => 'Missing required fields'
             ], Response::HTTP_BAD_REQUEST);
         }
- 
+
         $nurse = new Nurse();
         $nurse->setName($data['name']);
         $nurse->setSurname($data['surname']);
@@ -154,9 +155,9 @@ final class NurseController extends AbstractController
         $nurse->setSpeciality($data['speciality']);
         $nurse->setUsername($data['username']);
         $nurse->setPassword($data['password']);
- 
+
         $nurseRepository->save($nurse, true);
- 
+
         return $this->json([
             'success' => true,
             'message' => "Nurse '{$nurse->getName()}' created successfully",
@@ -170,7 +171,7 @@ final class NurseController extends AbstractController
             ]
         ], Response::HTTP_CREATED);
     }
- 
+
     #[Route('/{id}', name: 'app_nurse_delete', methods: ['DELETE'])]
     public function deleteById(int $id, NurseRepository $nurseRepository): JsonResponse
     {
@@ -195,7 +196,7 @@ final class NurseController extends AbstractController
             'message' => "Nurse '{$nurse->getName()}'Deleted successfully"
         ], Response::HTTP_OK);
     }
-    #[Route('/{id}', name: 'nurse_searchById')]
+    #[Route('/{id}', name: 'nurse_searchById', methods: ['GET'])]
     public function readById(int $id,  NurseRepository $nurseRepository): JsonResponse
     {
         //Search nurse by ID
@@ -224,5 +225,60 @@ final class NurseController extends AbstractController
             ],
             Response::HTTP_NOT_FOUND
         );
+    }
+
+    #[Route(path: '/{id}', name: 'app_nurse_update', methods: ['PUT'])]
+    public function updateNurse(
+        int $id,
+        Request $request,
+        NurseRepository $nurseRepository,
+        EntityManagerInterface $entityManager,
+    ): JsonResponse {
+
+        // Buscar la enfermera por ID
+        $nurse = $nurseRepository->find($id);
+
+        if (!$nurse) {
+            return new JsonResponse(['error' => 'Nurse not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        // Decodificar los datos JSON del cuerpo de la petición
+        $data = json_decode($request->getContent(), true);
+
+        // Actualizar los campos si se proporcionan
+        if (isset($data['name'])) {
+            $nurse->setName($data['name']);
+        }
+        if (isset($data['surname'])) {
+            $nurse->setSurname($data['surname']);
+        }
+        if (isset($data['age'])) {
+            $nurse->setAge($data['age']);
+        }
+        if (isset($data['speciality'])) {
+            $nurse->setSpeciality($data['speciality']);
+        }
+        if (isset($data['username'])) {
+            $nurse->setUsername($data['username']);
+        }
+        if (!empty($data['password'])) {
+            $nurse->setPassword($data['password']);
+        }
+
+        // Save the changes
+        $entityManager->flush();
+
+        return new JsonResponse([
+            'success' => true,
+            'message' => 'Nurse updated successfully',
+            'nurse' => [
+                'id' => $nurse->getId(),
+                'name' => $nurse->getName(),
+                'surname' => $nurse->getSurname(),
+                'age' => $nurse->getAge(),
+                'speciality' => $nurse->getSpeciality(),
+                'username' => $nurse->getUsername(),
+            ]
+        ], Response::HTTP_OK);
     }
 }
