@@ -55,7 +55,7 @@ final class NurseController extends AbstractController
         if (empty($results)) {
             return $this->json([
                 'success' => false,
-                'message' => "No se encontró ningún enfermero con el nombre '{$name}'",
+                'message' => "No nurse found with the given name '{$name}'",
                 'data' => []
             ], Response::HTTP_NOT_FOUND);
         }
@@ -99,7 +99,7 @@ final class NurseController extends AbstractController
                     'success' => false,
                     'message' => 'Username and password are required',
                 ],
-                Response::HTTP_BAD_REQUEST
+                Response::HTTP_UNAUTHORIZED
             );
         }
         //Busca en la base de datos el username
@@ -128,8 +128,39 @@ final class NurseController extends AbstractController
                 'success' => false,
                 'message' => 'Invalid credentials',
             ],
-            Response::HTTP_UNAUTHORIZED
+            Response::HTTP_NOT_FOUND
         );
+    }
+    #[Route('/{id}', name: 'nurse_searchById')]
+    public function readById(int $id,  NurseRepository $nurseRepository): JsonResponse
+    {
+        //Search nurse by ID
+        $nurse = $nurseRepository->find($id);
+        //If the nurse exist, show us data
+        if ($nurse) {
+            return $this->json(
+                [
+                    'success' => true,
+                    'message' => 'Nurse found',
+                    'nurse' => [
+                        'id' => $nurse->getId(),
+                        'name' => $nurse->getName(),
+                        'surname' => $nurse->getSurname(),
+                        'username' => $nurse->getUsername(),
+                        'speciality' => $nurse->getSpeciality(),
+                    ]
+                ],
+                Response::HTTP_OK 
+            );
+        }
+        return $this->json(
+            [
+                'success' => false,
+                'message' => 'Nurse not found',
+            ],
+            Response::HTTP_NOT_FOUND
+        );
+<<<<<<< HEAD
     }
 
     #[Route(path: '/{id}', name: 'app_nurse_update', methods: ['PUT'])]
@@ -191,3 +222,8 @@ final class NurseController extends AbstractController
         ], Response::HTTP_OK);
     }
 }
+=======
+ }
+
+}
+>>>>>>> 2798506c1a84124b8ac1314b6e4278d90d45b181
