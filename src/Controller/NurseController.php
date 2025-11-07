@@ -254,7 +254,7 @@ final class NurseController extends AbstractController
         }
         if (isset($data['age'])) {
             $nurse->setAge($data['age']);
-        }
+        } 
         if (isset($data['speciality'])) {
             $nurse->setSpeciality($data['speciality']);
         }
