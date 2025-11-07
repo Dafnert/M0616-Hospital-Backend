@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\NurseRepository;
 use Doctrine\ORM\EntityManagerInterface;
-
+use App\Entity\Nurse;
 
 
 #[Route(path: '/nurse')]
@@ -83,11 +83,8 @@ final class NurseController extends AbstractController
 
     public function login(Request $request, NurseRepository $nurseRepository): JsonResponse
     {
-        // Obtener datos de la request (JSON enviado desde Postman)
+        // Obtain data request
         $data = json_decode($request->getContent(), true);
-        // $nursesFile = $this->getParameter('kernel.project_dir') . '/public/nurses.json';
-        // $nursesData = json_decode(file_get_contents($nursesFile), true);
-        // $nurses = $nursesData ?? []; 
 
         $username = $data['username'] ?? '';
         $password = $data['password'] ?? '';
@@ -131,7 +128,75 @@ final class NurseController extends AbstractController
             Response::HTTP_NOT_FOUND
         );
     }
-    #[Route('/{id}', name: 'nurse_searchById')]
+
+    #[Route('/', name: 'app_nurse_create', methods: ['POST'])]
+    public function createNurse(Request $request, NurseRepository $nurseRepository): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+
+        if (
+            !isset($data['name']) ||
+            !isset($data['surname']) ||
+            !isset($data['age']) ||
+            !isset($data['speciality']) ||
+            !isset($data['username']) ||
+            !isset($data['password'])
+        ) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Missing required fields'
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
+        $nurse = new Nurse();
+        $nurse->setName($data['name']);
+        $nurse->setSurname($data['surname']);
+        $nurse->setAge($data['age']);
+        $nurse->setSpeciality($data['speciality']);
+        $nurse->setUsername($data['username']);
+        $nurse->setPassword($data['password']);
+
+        $nurseRepository->save($nurse, true);
+
+        return $this->json([
+            'success' => true,
+            'message' => "Nurse '{$nurse->getName()}' created successfully",
+            'data' => [
+                'id' => $nurse->getId(),
+                'name' => $nurse->getName(),
+                'surname' => $nurse->getSurname(),
+                'age' => $nurse->getAge(),
+                'speciality' => $nurse->getSpeciality(),
+                'username' => $nurse->getUsername(),
+            ]
+        ], Response::HTTP_CREATED);
+    }
+
+    #[Route('/{id}', name: 'app_nurse_delete', methods: ['DELETE'])]
+    public function deleteById(int $id, NurseRepository $nurseRepository): JsonResponse
+    {
+        // Buscar el enfermero por ID
+        $nurse = $nurseRepository->find($id);
+
+        // Verificar si existe
+        if (!$nurse) {
+            return $this->json([
+                'success' => false,
+                'message' => "No nurse was found with the ID'{$id}'"
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        // Eliminar el enfermero
+        $entityManager = $nurseRepository->getEntityManager();
+        $entityManager->remove($nurse);
+        $entityManager->flush();
+
+        return $this->json([
+            'success' => true,
+            'message' => "Nurse '{$nurse->getName()}'Deleted successfully"
+        ], Response::HTTP_OK);
+    }
+    #[Route('/{id}', name: 'nurse_searchById', methods: ['GET'])]
     public function readById(int $id,  NurseRepository $nurseRepository): JsonResponse
     {
         //Search nurse by ID
@@ -150,7 +215,7 @@ final class NurseController extends AbstractController
                         'speciality' => $nurse->getSpeciality(),
                     ]
                 ],
-                Response::HTTP_OK 
+                Response::HTTP_OK
             );
         }
         return $this->json(
@@ -160,14 +225,9 @@ final class NurseController extends AbstractController
             ],
             Response::HTTP_NOT_FOUND
         );
-<<<<<<< HEAD
     }
 
     #[Route(path: '/{id}', name: 'app_nurse_update', methods: ['PUT'])]
-
-
-
-    #[Route('/{id}', name: 'api_update_auxiliar', methods: ['PUT'])]
     public function updateNurse(
         int $id,
         Request $request,
@@ -194,7 +254,7 @@ final class NurseController extends AbstractController
         }
         if (isset($data['age'])) {
             $nurse->setAge($data['age']);
-        }
+        } 
         if (isset($data['speciality'])) {
             $nurse->setSpeciality($data['speciality']);
         }
@@ -222,8 +282,3 @@ final class NurseController extends AbstractController
         ], Response::HTTP_OK);
     }
 }
-=======
- }
-
-}
->>>>>>> 2798506c1a84124b8ac1314b6e4278d90d45b181
