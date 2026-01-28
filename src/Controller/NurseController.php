@@ -175,10 +175,8 @@ final class NurseController extends AbstractController
     #[Route('/{id}', name: 'app_nurse_delete', methods: ['DELETE'])]
     public function deleteById(int $id, NurseRepository $nurseRepository): JsonResponse
     {
-        // Buscar el enfermero por ID
         $nurse = $nurseRepository->find($id);
 
-        // Verificar si existe
         if (!$nurse) {
             return $this->json([
                 'success' => false,
@@ -186,7 +184,6 @@ final class NurseController extends AbstractController
             ], Response::HTTP_NOT_FOUND);
         }
 
-        // Eliminar el enfermero
         $entityManager = $nurseRepository->getEntityManager();
         $entityManager->remove($nurse);
         $entityManager->flush();
@@ -211,7 +208,9 @@ final class NurseController extends AbstractController
                         'id' => $nurse->getId(),
                         'name' => $nurse->getName(),
                         'surname' => $nurse->getSurname(),
+                        'age' => $nurse->getAge(),
                         'username' => $nurse->getUsername(),
+                        'password' => $nurse->getPassword(),
                         'speciality' => $nurse->getSpeciality(),
                     ]
                 ],
@@ -241,11 +240,8 @@ final class NurseController extends AbstractController
         if (!$nurse) {
             return new JsonResponse(['error' => 'Nurse not found'], Response::HTTP_NOT_FOUND);
         }
-
-        // Decodificar los datos JSON del cuerpo de la petición
         $data = json_decode($request->getContent(), true);
 
-        // Actualizar los campos si se proporcionan
         if (isset($data['name'])) {
             $nurse->setName($data['name']);
         }
