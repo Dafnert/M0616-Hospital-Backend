@@ -30,13 +30,15 @@ final class NurseController extends AbstractController
         $data = array_map(function ($nurse) {
             return [
                 'id' => $nurse->getId(),
-                'name' => $nurse->getName(),
-                'surname' => $nurse->getSurname(),
-                'age' => $nurse->getAge(),
-                'speciality' => $nurse->getSpeciality(),
-                'username' => $nurse->getUsername(),
-                'password' => $nurse->getPassword(),
-            ];
+    'name' => $nurse->getName(),
+    'surname' => $nurse->getSurname(),
+    'age' => $nurse->getAge(),
+    'speciality' => $nurse->getSpeciality(),
+    'username' => $nurse->getUsername(),
+
+    
+    'img' => '/uploads/nurses/images.jpg',
+               ];
         }, $nurses);
 
         return new JsonResponse($data, Response::HTTP_OK);
